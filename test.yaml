@@ -1,0 +1,43 @@
+databases:
+  test_db:
+    dsn: mysql://root:hadam1011@localhost:3306/test_db
+    labels:
+      host: localhost
+      services_code: CNTT_VAS_1011
+    keep-connected: 'false'
+    autocommit: 'true'
+  employee:
+    dsn: mysql://root:hadam1011@localhost:3306/employee
+    labels:
+      host: localhost
+      services_code: CNTT_VAS_1092
+    keep-connected: 'true'
+    autocommit: 'false'
+metrics:
+  test_metric:
+    type: gauge
+    description: sample gauge
+    labels:
+    - id
+    - name
+  employee_metric:
+    type: gauge
+    labels:
+    - username
+queries:
+  query1:
+    interval: 5
+    timeout: 10
+    databases:
+    - test_db
+    metrics:
+    - test_metric
+    sql: SELECT name, id, authorId as test_metric from books;
+  employee query:
+    interval: 10
+    timeout: 10
+    databases:
+    - employee
+    metrics:
+    - employee_metric
+    sql: SELECT username, id as employee_metric from users;
