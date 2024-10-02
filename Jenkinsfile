@@ -15,31 +15,29 @@ pipeline {
           }
         }
 
-        stage('SonarCloud analysis') {
-            environment {
-                scannerHome = tool 'Sonarqube scanner'
-            }
+        // stage('SonarCloud analysis') {
+        //     environment {
+        //         scannerHome = tool 'Sonarqube scanner'
+        //     }
 
+        //     steps {
+        //         powershell 'Copy-Item -Path "pom-analysis.xml" -Destination "pom.xml" -Force'
+
+        //         withSonarQubeEnv(credentialsId: 'sonarcloud_token', installationName: 'SonarCloud') {
+        //             withMaven {
+        //                 bat 'mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=hadam1011_Query-exporter-app-BE'
+        //             }
+        //         }
+        //     }
+        // }
+
+        stage ('Build') {
             steps {
-                powershell 'Copy-Item -Path "pom-analysis.xml" -Destination "pom.xml" -Force'
-
-                withSonarQubeEnv(credentialsId: 'sonarcloud_token', installationName: 'SonarCloud') {
-                    withMaven {
-                        bat 'mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=hadam1011_Query-exporter-app-BE'
-                    }
-                }
-            }
-        }
-
-        stage ('Build images') {
-            steps {
+                // Build image
                 powershell 'Copy-Item -Path "pom-build.xml" -Destination "pom.xml" -Force'
                 bat "docker build -t ${DOCKERHUB_REPO}:backend-${BUILD_NUMBER} ."
-            }
-        }
 
-        stage ('Push images to Docker Hub') {
-            steps {
+                // Push image to Docker Hub
                 bat """
                     docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}
                     docker push ${DOCKERHUB_REPO}:backend-${BUILD_NUMBER}
@@ -47,7 +45,7 @@ pipeline {
             }
         }
 
-        stage ('Update deployment files') {
+        stage ('Deploy') {
             steps {
                 bat """
                     git config user.email "hadam8910@gmail.com"
@@ -63,6 +61,9 @@ pipeline {
                     git add .
                     git commit -m "Update deployment image to version ${BUILD_NUMBER}"
                     git push https://${GITHUB_TOKEN}@github.com/hadam1011/manifests
+
+                    cd ..
+                    rmdir /s /q manifests
                 """
             }
         }
