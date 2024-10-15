@@ -40,7 +40,7 @@ public class Queries {
 
 	}
 
-	public Queries(long id, String name, int timeout, int interval, String sql, String databases, String metrics) {
+	public Queries(long id, String name, int timeout, int interval, String sql, String schedule, String databases, String metrics) {
 		this.id = id;
 		this.name = name;
 		this.timeout = timeout;
@@ -48,6 +48,7 @@ public class Queries {
 		this.sql = sql;
 		this.databases = databases;
 		this.metrics = metrics;
+		this.schedule = schedule;
 	}
 
 	public long getId() {

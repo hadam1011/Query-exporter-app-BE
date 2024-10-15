@@ -61,18 +61,9 @@ public class QueryController {
 		return res;
 	}
 
-
 	// create query rest api
-	@PostMapping("/queries")
-	public ResponseEntity<Queries> createQuery(@RequestHeader("Authorization") String authorizationHeader,@RequestBody Queries query)  {
-		String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);
-		UserEntity user = userRepository.findByUsername(username).get();
-		query.setUser(user);
-		queryRepository.save(query);
-		return ResponseEntity.ok(query);
-    }
 	@PostMapping("/queries/test")
-	public ResponseEntity<String> createQuery(@RequestHeader("Authorization") String authorizationHeader,@RequestBody QueryDTO queryDTO)  {
+	public ResponseEntity<Queries> createQuery(@RequestHeader("Authorization") String authorizationHeader,@RequestBody QueryDTO queryDTO)  {
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
 		}
@@ -100,12 +91,21 @@ public class QueryController {
 				metricSave = metricSave + queryDTO.metrics.get(i).getName() + "," ;
 			}
 		}
-		Queries query = new Queries(queryDTO.getId(),queryDTO.getName(),queryDTO.getTimeout(),queryDTO.getInterval(),queryDTO.getSql(),databaseSave,metricSave);
+		Queries query = new Queries(
+				queryDTO.getId(),
+				queryDTO.getName(),
+				queryDTO.getTimeout(),
+				queryDTO.getInterval(),
+				queryDTO.getSql(),
+				queryDTO.getSchedule(),
+				databaseSave,
+				metricSave
+		);
 		UserEntity user = userRepository.findByUsername(username).get();
 		query.setUser(user);
-		queryRepository.save(query);
-		return ResponseEntity.ok("ok");
+		return ResponseEntity.ok(queryRepository.save(query));
 	}
+
 	// get query by id rest api
 	@GetMapping("/queries/{id}")
 	public ResponseEntity<Queries> getQueryById(@PathVariable Long id) {
@@ -119,6 +119,10 @@ public class QueryController {
 	public ResponseEntity<Queries> updateQuery(@PathVariable Long id, @RequestBody QueryDTO queryDetails){
 		Queries query = queryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Queries not exist with id :" + id));
+
+		if (queryRepository.existsByName(queryDetails.getName()) && !queryDetails.getName().equals(query.getName()))
+			throw new IllegalArgumentException("Query already exists.");
+
 		String databaseSave = "";
 		for(int i = 0 ; i < queryDetails.databases.size() ; i ++ ){
 			if(i == queryDetails.databases.size() - 1){
