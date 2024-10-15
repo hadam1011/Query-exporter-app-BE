@@ -31,7 +31,7 @@ public class DatabaseMapper {
         for(int i =0 ; i < databases.size() ; i++ ){
             Map<String,Object> dbFieldMap = new LinkedHashMap<String,Object>();
             if(databases.get(i).getDsn() != null){
-                dbFieldMap.put("dsn",databases.get(i).getLink());
+                dbFieldMap.put("dsn",databases.get(i).getDsn());
             }
             if(databases.get(i).getLabel() != null){
                 Map<String,String> labelsFieldMap = new HashMap<String,String>();

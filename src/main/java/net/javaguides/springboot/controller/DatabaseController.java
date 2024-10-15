@@ -93,15 +93,18 @@ public class DatabaseController {
 		Database database = databaseRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Database not exist with id :" + id));
 		LOGGER.info("Update Database by ID : ", id);
-
-		System.out.println("connectSQL: " + database.getConnectSQL());
-
 		String [] split = databaseDetails.getLink().split("://|@|:|/");
+		String newName = split[5];
+
+		if (!newName.equals(database.getName()) && databaseRepository.existsByName(newName)) {
+			throw new IllegalArgumentException("Database already exists.");
+		}
+
 		database.setDsn( PassTranformer.encrypt(databaseDetails.getLink()));
 		database.setLabel(databaseDetails.getLabel());
 		database.setLink(databaseDetails.getLink());
 		database.setHostName(split[3]);
-		database.setName(split[5]);
+		database.setName(newName);
 		database.setConnectSQL(databaseDetails.getConnectSQL());
 		database.setAutoCommit(databaseDetails.getAutoCommit());
 		database.setKeepConnect(databaseDetails.getKeepConnect());

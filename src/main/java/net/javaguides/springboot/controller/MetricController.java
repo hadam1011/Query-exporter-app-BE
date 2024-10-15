@@ -79,6 +79,10 @@ public class MetricController {
 	public ResponseEntity<Metric> updateMetric(@PathVariable Long id, @RequestBody Metric metricDetails){
 		Metric metric = metricRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Metric not exist with id :" + id));
+
+		if (metricRepository.existsByName(metricDetails.getName()) && !metricDetails.getName().equals(metric.getName()))
+			throw new IllegalArgumentException("Metric already exists.");
+
 		metric.setName(metricDetails.getName());
 		metric.setType(metricDetails.getType());
 		metric.setDescription(metricDetails.getDescription());
