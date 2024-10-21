@@ -67,14 +67,22 @@ public class MetricController {
 	
 	// get metric by id rest api
 	@GetMapping("/metrics/{id}")
-	public ResponseEntity<Metric> getMetricById(@PathVariable Long id) {
+	public ResponseEntity<Metric> getMetricById(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long id) {
 		Metric metric = metricRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Metric not exist with id :" + id));
 		return ResponseEntity.ok(metric);
 	}
-	
+
+	// get metric by name
+	@GetMapping("/metric")
+	public ResponseEntity<Metric> getMetricByName(@RequestHeader("Authorization") String authorizationHeader, @RequestParam String name) {
+		Metric metric = metricRepository.findByName(name);
+		if (metric == null)
+			throw new IllegalArgumentException("Metric not exist.");
+		return ResponseEntity.ok(metric);
+	}
+
 	// update metric rest api
-	
 	@PutMapping("/metrics/{id}")
 	public ResponseEntity<Metric> updateMetric(@PathVariable Long id, @RequestBody Metric metricDetails){
 		Metric metric = metricRepository.findById(id)
@@ -112,5 +120,4 @@ public class MetricController {
 		MetricMapper mapper = new MetricMapper(metricRepository);
 		return mapper.toYamlMap(allMetrics);
 	}
-	
 }

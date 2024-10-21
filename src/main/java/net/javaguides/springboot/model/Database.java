@@ -14,9 +14,6 @@ public class Database {
 	@Column(name = "name")
 	private String name;
 
-	@Column(name = "dsn")
-	private String dsn;
-
 	@Column(name = "labels")
 	private String label;
 
@@ -67,14 +64,6 @@ public class Database {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getDsn() {
-		return dsn;
-	}
-
-	public void setDsn(String dsn) {
-		this.dsn = dsn;
 	}
 
 	public String getLabel() {

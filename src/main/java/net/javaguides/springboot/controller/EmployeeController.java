@@ -55,7 +55,6 @@ public class EmployeeController {
 
 	@GetMapping("/home/downloadYaml")
 	public ResponseEntity<byte[]> downloadYaml(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
-
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
 		}
