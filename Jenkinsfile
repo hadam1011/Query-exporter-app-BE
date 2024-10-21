@@ -9,12 +9,6 @@ pipeline {
     }
 
     stages {
-        stage ("Clone project") {
-          steps {
-            git branch: 'main', url: 'https://github.com/hadam1011/Query-exporter-app-BE.git'
-          }
-        }
-
         // stage('SonarCloud analysis') {
         //     environment {
         //         scannerHome = tool 'Sonarqube scanner'
@@ -34,7 +28,6 @@ pipeline {
         stage ('Build') {
             steps {
                 // Build image
-                powershell 'Copy-Item -Path "pom-build.xml" -Destination "pom.xml" -Force'
                 bat "docker build -t ${DOCKERHUB_REPO}:backend-${BUILD_NUMBER} ."
 
                 // Push image to Docker Hub
@@ -59,7 +52,7 @@ pipeline {
                     git config user.email "hadam8910@gmail.com"
                     git config user.name "hadam1011"
                     git add .
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                    git commit -m "Update backend deployment image to version ${BUILD_NUMBER}"
                     git push https://${GITHUB_TOKEN}@github.com/hadam1011/manifests
 
                     cd ..

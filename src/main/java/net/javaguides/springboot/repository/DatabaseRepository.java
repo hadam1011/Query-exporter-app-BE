@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface DatabaseRepository extends JpaRepository<Database, Long> {
     Database findByName(String databaseNames);
-    @Query(value = "SELECT db.id,db.name,db.dsn,db.labels,db.host_name,db.services_code,db.linkdb,db.connect_sql,db.keep_connect,db.auto_commit,db.user_id\n" +
+    @Query(value = "SELECT db.id,db.name,db.labels,db.host_name,db.services_code,db.linkdb,db.connect_sql,db.keep_connect,db.auto_commit,db.user_id\n" +
             "FROM db \n" +
             "INNER JOIN users u \n" +
             "ON db.user_id = u.id \n" +

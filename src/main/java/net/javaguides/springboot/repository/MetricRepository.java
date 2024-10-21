@@ -20,5 +20,4 @@ public interface MetricRepository extends JpaRepository<Metric, Long> {
            "where u.username = :username", nativeQuery = true)
    List<Metric> findByUsernameFromJoinedTables(@Param("username") String username);
    boolean existsByName(String name);
-
 }

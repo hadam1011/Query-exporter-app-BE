@@ -56,14 +56,12 @@ public class DatabaseController {
 
 		List<Database> databases = databaseRepository.findByUsernameFromJoinedTables(username);
 		for (Database database : databases) {
-			System.out.println("hostname: " + database.getHostName() + " - " + split[5]);
 			if (database.getName().equals(split[5]))
 				throw new IllegalArgumentException("Database already exists.");
 		}
 
 		Database database = new Database();
-		database.setLink(databaseDTO.getLink());
-		database.setDsn(PassTranformer.encrypt(linkDB));
+		database.setLink(PassTranformer.encrypt(linkDB));
 
 		String label = "hostname: " + split[3] + "\\n" + "serviceCode: " + databaseDTO.getServiceCode();
 		database.setLabel(label +  "\\n" + databaseDTO.getLabel());
@@ -93,18 +91,8 @@ public class DatabaseController {
 		Database database = databaseRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Database not exist with id :" + id));
 		LOGGER.info("Update Database by ID : ", id);
-		String [] split = databaseDetails.getLink().split("://|@|:|/");
-		String newName = split[5];
 
-		if (!newName.equals(database.getName()) && databaseRepository.existsByName(newName)) {
-			throw new IllegalArgumentException("Database already exists.");
-		}
-
-		database.setDsn( PassTranformer.encrypt(databaseDetails.getLink()));
 		database.setLabel(databaseDetails.getLabel());
-		database.setLink(databaseDetails.getLink());
-		database.setHostName(split[3]);
-		database.setName(newName);
 		database.setConnectSQL(databaseDetails.getConnectSQL());
 		database.setAutoCommit(databaseDetails.getAutoCommit());
 		database.setKeepConnect(databaseDetails.getKeepConnect());
