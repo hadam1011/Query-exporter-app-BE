@@ -1,3 +1,5 @@
+def FAILED_STAGE
+
 pipeline {
     agent any
     
@@ -28,9 +30,19 @@ pipeline {
         stage ('Build') {
             steps {
                 // Build image
+                script {
+                    FAILED_STAGE = env.STAGE_NAME
+                }
                 bat "docker build -t ${DOCKERHUB_REPO}:backend-${BUILD_NUMBER} ."
+            }
+        }
 
+        stage ('Push image to Docker Hub') {
+            steps {
                 // Push image to Docker Hub
+                script {
+                    FAILED_STAGE = env.STAGE_NAME
+                }
                 bat """
                     docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}
                     docker push ${DOCKERHUB_REPO}:backend-${BUILD_NUMBER}
@@ -40,6 +52,9 @@ pipeline {
 
         stage ('Deploy') {
             steps {
+                script {
+                    FAILED_STAGE = env.STAGE_NAME
+                }
                 bat """
                     git config user.email "hadam8910@gmail.com"
                     git config user.name "hadam1011"
@@ -57,6 +72,24 @@ pipeline {
 
                     cd ..
                     rmdir /s /q manifests
+                """
+            }
+        }
+    }
+
+    post{
+        success{
+            bat """
+                echo ${FAILED_STAGE}
+                curl -s -X POST https://api.telegram.org/bot7932959424:AAEfe8M7DCJ9G0-r5nx9ze8sEQvcIGwtUp0/sendMessage -d chat_id="-4657156617" -d text="[SUCCESSED] Query-exporter-app BE pipeline run successfully!" 
+            """
+        }
+        failure{
+            script {
+                def STAGE = FAILED_STAGE
+                bat """ 
+                    set "STAGE=${STAGE}"
+                    curl -s -X POST https://api.telegram.org/bot7932959424:AAEfe8M7DCJ9G0-r5nx9ze8sEQvcIGwtUp0/sendMessage -d chat_id="-4657156617" -d text="[FAILED] Query-exporter-app BE pipeline has failed at stage %STAGE%!" 
                 """
             }
         }
